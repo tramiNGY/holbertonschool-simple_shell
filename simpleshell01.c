@@ -9,7 +9,7 @@
  */
 int main(void)
 {
-	int status, i;
+	int status, i, length;
 	char *buffer;
 	char *argv[2];
 	char *list = "/bin/ls";
@@ -22,6 +22,10 @@ int main(void)
 		return (-1);
 	argv[0] = buffer;
 	argv[1] = NULL;
+
+	while (list[length] != '\0')
+		length++;
+
 	printf("#cisfun$ ");
 	getline(&buffer, &size, stdin);
 	buffer[strcspn(buffer, "\n")] = 0;
@@ -31,7 +35,7 @@ int main(void)
 		i = 0;
 		while (argv[0][i] == list[i])
 			i++;
-		if (i == strlen(list) + 1)
+		if (i == length + 1)
 			execve(argv[0], argv, NULL);
 
 		else
