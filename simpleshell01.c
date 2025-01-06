@@ -10,9 +10,7 @@
 int main(void)
 {
 	int status, i, length;
-	char *buffer;
-	char *argv[2];
-	char *list = "/bin/ls";
+	char *buffer, *argv[2], *list = "/bin/ls";
 	pid_t child_pid;
 	size_t size;
 
@@ -39,9 +37,11 @@ int main(void)
 			execve(argv[0], argv, NULL);
 
 		else
+		{
 			printf("./shell: No such file or directory\n");
 			free(buffer);
 			return (-1);
+		}
 	}
 	else
 		wait(&status);
