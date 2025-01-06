@@ -9,9 +9,10 @@
  */
 int main(void)
 {
-	int status;
+	int status, i;
 	char *buffer;
 	char *argv[2];
+	char *list = "/bin/ls";
 	pid_t child_pid;
 	size_t size;
 
@@ -27,14 +28,16 @@ int main(void)
 	child_pid = fork();
 	if (child_pid == 0)
 	{
-		if (argv[0] == NULL)
-		{
-			printf("buffer is NULL\n");
+		i = 0;
+		while (argv[0][i] == list[i])
+			i++;
+		if (i == strlen(list) + 1)
+			execve(argv[0], argv, NULL);
+
+		else
+			printf("./shell: No such file or directory\n");
 			free(buffer);
 			return (-1);
-		}
-		else
-			execve(argv[0], argv, NULL);
 	}
 	else
 		wait(&status);
