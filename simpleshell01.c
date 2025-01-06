@@ -1,8 +1,56 @@
+#include <stddef.h>
+#include <stdio.h>
+#include <dirent.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <string.h>
+
+char *str_tok(char *prompt)
+{
+	char *token, *last_token;
+
+	token = strtok(prompt, "/");
+	while (token != NULL)
+	{
+		last_token = token;
+		token = strtok(NULL, "/");
+	}
+
+	return (last_token);
+}
+int compare(char *prompt)
+{
+	char *temp;
+	int i, length, match;
+	DIR *dir = opendir("/bin/");
+	struct dirent *entry;
+
+	temp = str_tok(prompt);
+
+	while (temp[length] != '\0')
+		length++;
+
+	if (dir == NULL) {
+		printf ("error");
+	}
+	while ((entry = readdir(dir)) != NULL)
+	{
+		i = 0;
+		match = 1;
+
+		while (temp[i] == entry->d_name[i])
+			i++;
+		if (i == length + 1)
+			match = 0;
+
+		entry->d_name;
+	}
+	closedir(dir);
+	return (match);
+}
+
 /**
  * main - execute the commands from the prompt
  * Return: 0
@@ -30,12 +78,8 @@ int main(void)
 	child_pid = fork();
 	if (child_pid == 0)
 	{
-		i = 0;
-		while (argv[0][i] == list[i])
-			i++;
-		if (i == length + 1)
+		if (compare(argv[0]) == 0)
 			execve(argv[0], argv, NULL);
-
 		else
 		{
 			printf("./shell: No such file or directory\n");
