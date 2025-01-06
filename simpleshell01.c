@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <string.h>
 /**
  * main - execute the commands from the prompt
  * Return: 0
@@ -22,6 +23,7 @@ int main(void)
 	argv[1] = NULL;
 	printf("#cisfun$ ");
 	getline(&buffer, &size, stdin);
+	buffer[strcspn(buffer, "\n")] = 0;
 	child_pid = fork();
 	if (child_pid == 0)
 	{
