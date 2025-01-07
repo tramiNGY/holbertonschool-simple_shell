@@ -40,26 +40,23 @@ int exec_ve(char **argv)
 int main(int argc, char **argv)
 {
 	int status;
-	pid_t child_pid;
+	char *command;
 	(void) argc;
-	argv[0] = readline();
-	argv[1] = NULL;
-	child_pid = fork();
-	if (child_pid == 0)
+	status = 1;
+	while (status)
 	{
+		command = readline();
+		argv[0] = command;
+		argv[1] = NULL;
 		if (execve(argv[0], argv, NULL) == -1)
 		{
-			printf("./shell: No such file or directory");
-			free(argv[0]);
-			exit(0);
-			return (-1);
+			printf("./shell: No such file or directory\n");
+			free(command);
 		}
 		else
 			exec_ve(argv);
+
 	}
-	else
-		wait(&status);
-	readline();
-	free(argv[0]);
+	free(command);
 	return (0);
 }
