@@ -1,94 +1,45 @@
-#include <stddef.h>
 #include <stdio.h>
-#include <dirent.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <stdlib.h>
 #include <string.h>
-
-char *str_tok(char *prompt)
-{
-	char *token, *last_token;
-
-	token = strtok(prompt, "/");
-	while (token != NULL)
-	{
-		last_token = token;
-		token = strtok(NULL, "/");
-	}
-
-	return (last_token);
-}
-int compare(char *prompt)
-{
-	char *temp;
-	int i, length, match;
-	DIR *dir = opendir("/bin/");
-	struct dirent *entry;
-
-	temp = str_tok(prompt);
-
-	while (temp[length] != '\0')
-		length++;
-
-	if (dir == NULL) {
-		printf ("error");
-	}
-	while ((entry = readdir(dir)) != NULL)
-	{
-		i = 0;
-		match = 1;
-
-		while (temp[i] == entry->d_name[i])
-			i++;
-		if (i == length + 1)
-			match = 0;
-
-		entry->d_name;
-	}
-	closedir(dir);
-	return (match);
-}
-
+#include <stdlib.h>
+#include <unistd.h>
 /**
- * main - execute the commands from the prompt
- * Return: 0
+ * readline - read prompt
+ * Return: buffer or null
  */
-int main(void)
+char *readline(void)
 {
-	int status, i, length;
-	char *buffer, *argv[2], *list = "/bin/ls";
-	pid_t child_pid;
+	char *buffer;
 	size_t size;
 
 	size = 32;
 	buffer = malloc(sizeof(char) * size);
 	if (buffer == NULL)
-		return (-1);
-	argv[0] = buffer;
-	argv[1] = NULL;
-
-	while (list[length] != '\0')
-		length++;
-
+		return (NULL);
 	printf("#cisfun$ ");
 	getline(&buffer, &size, stdin);
 	buffer[strcspn(buffer, "\n")] = 0;
-	child_pid = fork();
-	if (child_pid == 0)
+	return (buffer);
+}
+
+/**
+ * main - execute command or print error message
+ * @argc: number of arguments
+ * @argv: list of argument
+ * Return: 0 if success
+ */
+int main(int argc, char **argv)
+{
+	(void) argc;
+
+	argv[0] = readline();
+	argv[1] = NULL;
+	if (execve(argv[0], argv, NULL) == -1)
 	{
-		if (compare(argv[0]) == 0)
-			execve(argv[0], argv, NULL);
-		else
-		{
-			printf("./shell: No such file or directory\n");
-			free(buffer);
-			return (-1);
-		}
+		printf("./shell: No such file or directory");
+		exit(0);
+		return (-1);
 	}
 	else
-		wait(&status);
-	free(buffer);
+		execve(argv[0], argv, NULL);
 	return (0);
 }
