@@ -4,63 +4,64 @@
 #include <unistd.h>
 #include <sys/wait.h>
 /**
- * readline - read prompt
- * Return: buffer or null
+ * readline - read a line from stdin
+ * Return: buffer or NULL
  */
 char *readline(void)
 {
-	char *buffer;
-	size_t size;
+	char *buffer = NULL;
+	size_t size = 0;
 
-	size = 32;
-	buffer = malloc(sizeof(char) * size);
-	if (buffer == NULL)
+	if (getline(&buffer, &size, stdin) == -1)
+	{
+		free(buffer);
 		return (NULL);
-	/**
-	  if (truefalse == 1)
-	  printf("#cisfun$ ");
-	  */
-	getline(&buffer, &size, stdin);
+	}
 	buffer[strcspn(buffer, "\n")] = 0;
-	free(buffer);
 	return (buffer);
 }
 /**
  * main - execute command or print error message
  * @argc: number of arguments
- * @argv: list of argument
+ * @argv: list of arguments
  * Return: 0 if success
  */
 int main(int argc, char **argv)
 {
-	int status = 1;
+	int status;
 	char *command;
 	pid_t child_pid;
+	char *args[2];
 	(void) argc;
-	while (status)
+	(void) argv;
+	while (1)
 	{
-		status = isatty(0);
-		if (status == 1)
+		if (isatty(STDIN_FILENO))
 			printf("#cisfun$ ");
-		/* truefalse = 0;*/
 		command = readline();
-		argv[0] = command;
-		argv[1] = NULL;
+		if (command == NULL)
+			break;
+		args[0] = command;
+		args[1] = NULL;
 		child_pid = fork();
 		if (child_pid == 0)
 		{
-			if (execve(argv[0], argv, NULL) == -1)
+			if (execve(args[0], args, NULL) == -1)
 			{
-				/*truefalse = 1;*/
-				printf("./shell: No such file or directory\n");
+				perror("./shell");
 				free(command);
-			}
-			else
-			{
-				/*ruefalse = 1;*/
-				waitpid(child_pid, &status, 0);
+				exit(1);
 			}
 		}
+		else if (child_pid < 0)
+		{
+			perror("fork");
+		}
+		else
+		{
+			waitpid(child_pid, &status, 0);
+		}
+		free(command);
 	}
 	return (0);
 }
