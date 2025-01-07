@@ -16,9 +16,13 @@ char *readline(void)
 	buffer = malloc(sizeof(char) * size);
 	if (buffer == NULL)
 		return (NULL);
-	printf("#cisfun$ ");
+	/**
+	  if (truefalse == 1)
+	  printf("#cisfun$ ");
+	  */
 	getline(&buffer, &size, stdin);
 	buffer[strcspn(buffer, "\n")] = 0;
+	free(buffer);
 	return (buffer);
 }
 /**
@@ -29,26 +33,33 @@ char *readline(void)
  */
 int main(int argc, char **argv)
 {
-	int one, status;
+	int status = 1;
 	char *command;
 	pid_t child_pid;
 	(void) argc;
-	one = 1;
-	while (one)
+	while (status)
 	{
+		status = isatty(0);
+		if (status == 1)
+			printf("#cisfun$ ");
+		/* truefalse = 0;*/
 		command = readline();
 		argv[0] = command;
 		argv[1] = NULL;
 		child_pid = fork();
 		if (child_pid == 0)
 		{
-		if (execve(argv[0], argv, NULL) == -1)
-		{
-			printf("./shell: No such file or directory\n");
-			free(command);
-		}
-		else
-			waitpid(child_pid, &status, 0);
+			if (execve(argv[0], argv, NULL) == -1)
+			{
+				/*truefalse = 1;*/
+				printf("./shell: No such file or directory\n");
+				free(command);
+			}
+			else
+			{
+				/*ruefalse = 1;*/
+				waitpid(child_pid, &status, 0);
+			}
 		}
 	}
 	return (0);
