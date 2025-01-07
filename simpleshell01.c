@@ -22,16 +22,6 @@ char *readline(void)
 	return (buffer);
 }
 /**
- * exec_ve - exec command
- * @argv: list of argument
- * Return: 0 if success
- */
-int exec_ve(char **argv)
-{
-	execve(argv[0], argv, NULL);
-	return (0);
-}
-/**
  * main - execute command or print error message
  * @argc: number of arguments
  * @argv: list of argument
@@ -39,24 +29,27 @@ int exec_ve(char **argv)
  */
 int main(int argc, char **argv)
 {
-	int status;
+	int one, status;
 	char *command;
+	pid_t child_pid;
 	(void) argc;
-	status = 1;
-	while (status)
+	one = 1;
+	while (one)
 	{
 		command = readline();
 		argv[0] = command;
 		argv[1] = NULL;
+		child_pid = fork();
+		if (child_pid == 0)
+		{
 		if (execve(argv[0], argv, NULL) == -1)
 		{
 			printf("./shell: No such file or directory\n");
 			free(command);
 		}
 		else
-			exec_ve(argv);
-
+			waitpid(child_pid, &status, 0);
+		}
 	}
-	free(command);
 	return (0);
 }
