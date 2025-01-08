@@ -31,7 +31,14 @@ char **_strtok(char *command)
 {
 	int i;
 	char *token;
-	static char *args[64];
+	char **args;
+
+	args = malloc(sizeof(char) * 64);
+	if (args == NULL)
+	{
+		perror("malloc");
+		exit(1);
+	}
 
 	token = strtok(command, " ");
 	i = 0;
