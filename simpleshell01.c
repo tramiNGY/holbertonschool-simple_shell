@@ -85,6 +85,7 @@ int main(int argc, char **argv)
 			{
 				perror("./shell");
 				free(command);
+				free(args);
 				exit(1);
 			}
 		}
@@ -93,6 +94,7 @@ int main(int argc, char **argv)
 		else
 			waitpid(child_pid, &status, 0);
 		free(command);
+		free(args);
 	}
 	return (0);
 }
