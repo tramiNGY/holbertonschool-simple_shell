@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+
 /**
  * readline - read a line from stdin
  * Return: buffer or NULL
@@ -20,6 +21,30 @@ char *readline(void)
 	buffer[strcspn(buffer, "\n")] = 0;
 	return (buffer);
 }
+
+/**
+ * _strtok - splits command in arguments
+ * @command: string  to be split with space delimiter
+ * Return: pointer to an array of pointers to arguments
+ */
+char **_strtok(char *command)
+{
+	int i;
+	char *token;
+	static char *args[64];
+
+	token = strtok(command, " ");
+	i = 0;
+	while (token != NULL)
+	{
+		args[i] = token;
+		i++;
+		token = strtok(NULL, " ");
+	}
+	args[i] = NULL;
+	return (args);
+}
+
 /**
  * main - execute command or print error message
  * @argc: number of arguments
@@ -30,10 +55,9 @@ int main(int argc, char **argv)
 {
 	int status;
 	char *command;
+	char **args;
 	pid_t child_pid;
-	char *args[2], *token;
-	(void) argc;
-	(void) argv;
+	(void) argc, (void) argv;
 	while (1)
 	{
 		if (isatty(STDIN_FILENO))
@@ -41,27 +65,26 @@ int main(int argc, char **argv)
 		command = readline();
 		if (command == NULL)
 			break;
-		token = strtok(command, " ");
-		while (token != NULL)
+		if (strlen(command) == 0)
 		{
-			args[0] = token;
-			args[1] = NULL;
-			child_pid = fork();
-			if (child_pid == 0)
-			{
-				if (execve(args[0], args, NULL) == -1)
-				{
-					perror("./shell");
-					free(command);
-					exit(1);
-				}
-			}
-			else if (child_pid < 0)
-				perror("fork");
-			else
-				waitpid(child_pid, &status, 0);
-			token = strtok(NULL, " ");
+			free(command);
+			continue;
 		}
+		args = _strtok(command);
+		child_pid = fork();
+		if (child_pid == 0)
+		{
+			if (execve(args[0], args, NULL) == -1)
+			{
+				perror("./shell");
+				free(command);
+				exit(1);
+			}
+		}
+		else if (child_pid < 0)
+			perror("fork");
+		else
+			waitpid(child_pid, &status, 0);
 		free(command);
 	}
 	return (0);
