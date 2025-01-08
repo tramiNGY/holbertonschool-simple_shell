@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	int status;
 	char *command;
 	pid_t child_pid;
-	char *args[2];
+	char *args[2], *token;
 	(void) argc;
 	(void) argv;
 	while (1)
@@ -41,25 +41,26 @@ int main(int argc, char **argv)
 		command = readline();
 		if (command == NULL)
 			break;
-		args[0] = command;
-		args[1] = NULL;
-		child_pid = fork();
-		if (child_pid == 0)
+		token = strtok(command, " ");
+		while (token != NULL)
 		{
-			if (execve(args[0], args, NULL) == -1)
+			args[0] = token;
+			args[1] = NULL;
+			child_pid = fork();
+			if (child_pid == 0)
 			{
-				perror("./shell");
-				free(command);
-				exit(1);
+				if (execve(args[0], args, NULL) == -1)
+				{
+					perror("./shell");
+					free(command);
+					exit(1);
+				}
 			}
-		}
-		else if (child_pid < 0)
-		{
-			perror("fork");
-		}
-		else
-		{
-			waitpid(child_pid, &status, 0);
+			else if (child_pid < 0)
+				perror("fork");
+			else
+				waitpid(child_pid, &status, 0);
+			token = strtok(NULL, " ");
 		}
 		free(command);
 	}
