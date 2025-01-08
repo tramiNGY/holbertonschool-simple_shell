@@ -73,10 +73,7 @@ int main(int argc, char **argv)
 		if (command == NULL)
 			break;
 		if (strlen(command) == 0)
-		{
-			free(command);
 			continue;
-		}
 		args = _strtok(command);
 		child_pid = fork();
 		if (child_pid == 0)
@@ -90,7 +87,10 @@ int main(int argc, char **argv)
 			}
 		}
 		else if (child_pid < 0)
+		{
 			perror("fork");
+			return (1);
+		}
 		else
 			waitpid(child_pid, &status, 0);
 		free(command);
