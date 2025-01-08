@@ -33,7 +33,7 @@ char **_strtok(char *command)
 	char *token;
 	char **args;
 
-	args = malloc(sizeof(char) * 64);
+	args = malloc(sizeof(char *) * 64);
 	if (args == NULL)
 	{
 		perror("malloc");
