@@ -1,0 +1,132 @@
+NAME
+    shell - execute commands in a shell environment
+
+SYNOPSIS
+    shell [ARGUMENT]...
+
+DESCRIPTION
+    This program simulates a basic shell that reads commands from the user, searches for executables
+    in the directories listed in the PATH environment variable, and then runs them in a child process.
+    
+    The program supports simple command parsing and handles basic shell features like reading input,
+    forking child processes, and executing commands from a list of directories. It allows for interacting
+    with the terminal, providing a prompt when running in interactive mode.
+
+    The shell handles the following functionality:
+    
+    - Reads a line of input from the user
+    - Parses the command into arguments
+    - Finds the executable for the command by searching through directories in PATH
+    - Executes the command in a child process
+    - Waits for the child process to finish and handles errors
+    - Frees allocated memory for the list of directories and other dynamic resources
+
+COMMANDS
+
+    The commands supported by the shell are those available in the user's system PATH.
+    The shell expects commands to be available in the directories listed in the PATH variable.
+
+    While the shell primarily operates by executing commands provided as input, there are some
+    utility functions for handling lists, such as adding new directories to the list of search
+    paths, reading input lines, and splitting commands into arguments.
+
+ENVIRONMENT
+
+    PATH: A colon-separated list of directories that the shell uses to search for executable files.
+    
+    The shell searches for commands by checking each directory listed in PATH. The search stops when
+    an executable matching the command is found.
+
+EXIT STATUS
+
+    The program exits with:
+    
+    - 0 if the command is executed successfully.
+    - 1 if an error occurred during command execution (e.g., command not found, fork failure).
+
+FUNCTIONS
+
+    add_node_end
+        Add a new node to the end of the linked list.
+        
+        Arguments:
+            head: pointer to the head of the linked list
+            str: string to add to the list
+        
+        Returns: The new node if successful, or NULL if memory allocation fails.
+
+    get_full_path
+        Search for an executable in directories listed in PATH.
+
+        Arguments:
+            command: the command to search for
+            head: pointer to the head of the list of directories
+
+        Returns: The full path to the executable or NULL if not found.
+
+    readline
+        Read a line of input from stdin.
+
+        Returns: The input line or NULL if EOF is reached.
+
+    _strtok
+        Tokenize a string into arguments using space as a delimiter.
+
+        Arguments:
+            command: string to be split into arguments
+
+        Returns: A pointer to an array of argument strings.
+
+    process_command
+        Handle the execution of a command entered by the user.
+        
+        Arguments:
+            command: string entered by the user
+            head: pointer to the head of a list of directories
+            env: environment variables (including PATH)
+
+        Returns: None. Executes the command in a child process or prints an error message if the
+        command is not found.
+
+    free_list
+        Free memory allocated to the list of directories.
+
+        Arguments:
+            head: pointer to the head of the list to free
+
+        Returns: None.
+
+    set_path_var
+        Tokenizes the PATH environment variable and adds directories to the list.
+        
+        Arguments:
+            path_var: the value of the PATH variable
+            head: pointer to the head of the linked list of directories
+
+        Returns: None.
+
+EXAMPLES
+
+    Run the shell interactively:
+        $ shell
+        :) ls
+        (output of the 'ls' command)
+
+    Execute a command:
+        $ shell
+        :) echo Hello, World!
+        Hello, World!
+
+    In case of command not found:
+        $ shell
+        :) non_existing_command
+        Command not found
+
+AUTHOR(s)
+
+    Written by Tom DIBELLONIO & Tra Mi NGUYEN [Your Email]
+    With contributions from [Contributor Name], [Contributor Email].
+
+SEE ALSO
+
+    execve(2), fork(2), waitpid(2), stat(2), getline(3), strtok(3)
