@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 /**
  * readline - read a line from stdin
@@ -21,37 +22,65 @@ char *readline(void)
 	buffer[strcspn(buffer, "\n")] = 0;
 	return (buffer);
 }
-
 /**
- * _strtok - splits command in arguments
- * @command: string  to be split with space delimiter
- * Return: pointer to an array of pointers to arguments
+ * _getenv: replica of getenv function which get an environment variable
+ * @name: name of the environment variable to get
+ * Return: pointer to the environment variable
  */
-char **_strtok(char *command)
+char *_getenv(const char *name)
 {
-	int i;
-	char *token;
-	char **args;
-
-	args = malloc(sizeof(char *) * 64);
-	if (args == NULL)
+	int i, j;
+	int status;
+	extern char **environ;
+	for (i = 0; environ[i] != NULL; i++)
 	{
-		perror("malloc");
-		exit(1);
+		status = 1;
+		for (j = 0; environ[i][j] != '='; j++)
+		{
+			if (name[j] != environ[i][j])
+			{
+				status = 0;
+				break;
+			}
+		}
+		if (status)
+		{
+			return (&environ[i][j + 1]);
+		}
 	}
-
-	token = strtok(command, " ");
-	i = 0;
-	while (token != NULL)
-	{
-		args[i] = token;
-		i++;
-		token = strtok(NULL, " ");
-	}
-	args[i] = NULL;
-	return (args);
+	return (NULL);
 }
+char *get_full_path(char *command)
+{
+	char *path = _getenv("PATH");
+	char *dir = strtok(path, ":");
+	char *full_path = NULL;
+	struct stat buffer;
 
+	if (command[0] == '/')
+	{
+		full_path = strdup(command);
+		return (full_path);
+	}
+	while (dir != NULL)
+	{
+		full_path = malloc(strlen(dir) + strlen(command) + 2);
+		if (full_path == NULL)
+		{
+			perror("malloc");
+			return NULL;
+		}
+		sprintf(full_path, "%s/%s", dir, command);
+		if (stat(full_path, &buffer) == 0)
+		{
+			return (full_path);
+		}
+		free(full_path);
+		full_path = NULL;
+		dir = strtok(NULL, ":");
+	}
+	return (NULL);
+}
 /**
  * main - execute command or print error message
  * @argc: number of arguments
@@ -60,13 +89,12 @@ char **_strtok(char *command)
  */
 int main(int argc, char **argv)
 {
-	int status;
-	char *command;
-	extern char **environ;
-	char **args;
+	int status, i;
+	char *command, *token, *args[64];
 	pid_t child_pid;
-	(void) argc, (void) argv;
 
+	(void) argc;
+	(void) argv;
 	while (1)
 	{
 		if (isatty(STDIN_FILENO))
@@ -76,24 +104,33 @@ int main(int argc, char **argv)
 			break;
 		if (strlen(command) == 0)
 			continue;
-		args = _strtok(command);
+		i = 0;
+		token = strtok(command, " ");
+		while (token != NULL)
+		{
+			args[i] = token;
+			i++;
+			token = strtok(NULL, " ");
+		}
+		args[i] = NULL;
+		if (args[0][0] != '/')
+			args[0]= get_full_path(args[0]);
 		child_pid = fork();
 		if (child_pid == 0)
 		{
-			if (execve(args[0], args, environ) == -1)
+			if (execve(args[0], args, NULL) == -1)
 			{
 				perror("./shell");
 				free(command);
-				free(args);
 				exit(1);
 			}
 		}
+
 		else if (child_pid < 0)
 			perror("fork");
 		else
 			waitpid(child_pid, &status, 0);
 		free(command);
-		free(args);
 	}
 	return (0);
 }
