@@ -164,6 +164,8 @@ int main(int argc, char **argv, char **env)
 		command = readline();
 		if (command == NULL)
 			break;
+		if (strlen(command) == 0)
+			continue;
 		process_command(command, head, env);
 		free(command);
 	}

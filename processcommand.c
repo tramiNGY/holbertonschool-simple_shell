@@ -20,8 +20,6 @@ void process_command(char *command, list_t *head, char **env)
 	pid_t child_pid;
 	int status;
 
-	if (strlen(command) == 0)
-		return;
 	args = _strtok(command);
 	exe_path = get_full_path(args[0], head);
 	if (exe_path != NULL)
