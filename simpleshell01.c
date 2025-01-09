@@ -12,6 +12,7 @@
  * @str: string to add
  * Return: the new node
  */
+
 list_t *add_node_end(list_t **head, const char *str)
 {
 	list_t *newnode;
@@ -49,6 +50,7 @@ list_t *add_node_end(list_t **head, const char *str)
  * @head: list of directories
  * Return: path to the executable or NULL if not found
  */
+
 char *get_full_path(char *command, list_t *head)
 {
 	char *fullpath;
@@ -87,6 +89,7 @@ char *get_full_path(char *command, list_t *head)
  * readline - read a line from stdin
  * Return: buffer or NULL
  */
+
 char *readline(void)
 {
 	char *buffer = NULL;
@@ -106,6 +109,7 @@ char *readline(void)
  * @command: string to be split with space delimiter
  * Return: pointer to an array of pointers to arguments
  */
+
 char **_strtok(char *command)
 {
 	int i;
@@ -135,39 +139,24 @@ char **_strtok(char *command)
  * main - execute command or print error message
  * @argc: number of arguments
  * @argv: list of arguments
+ * @env: environment variable
  * Return: 0 if success
  */
+
 int main(int argc, char **argv, char **env)
 {
-	int status, i;
+	int i;
 	char *command;
-	char **args;
-	char *exe_path;
-	pid_t child_pid;
-	list_t *head = NULL, *temp, *next;
-	char *path_var = NULL, *copy, *token;
+	list_t *head = NULL;
 	(void)argc, (void)argv;
-
 	for (i = 0; env[i] != NULL; i++)
 	{
 		if (strncmp(env[i], "PATH=", 5) == 0)
 		{
-			path_var = &env[i][5];
+			set_path_var(&env[i][5], &head);
 			break;
 		}
 	}
-	if (path_var)
-	{
-		copy = strdup(path_var);
-		token = strtok(copy, ":");
-		while (token != NULL)
-		{
-			add_node_end(&head, token);
-			token = strtok(NULL, ":");
-		}
-		free(copy);
-	}
-
 	while (1)
 	{
 		if (isatty(STDIN_FILENO))
@@ -175,46 +164,9 @@ int main(int argc, char **argv, char **env)
 		command = readline();
 		if (command == NULL)
 			break;
-		if (strlen(command) == 0)
-			continue;
-
-		args = _strtok(command);
-		exe_path = get_full_path(args[0], head);
-		if (exe_path != NULL)
-		{
-			child_pid = fork();
-			if (child_pid == 0)
-			{
-				if (execve(exe_path, args, env) == -1)
-				{
-					perror("./shell");
-					free(command);
-					free(args);
-					free(exe_path);
-					exit(1);
-				}
-			}
-			else if (child_pid < 0)
-				perror("fork");
-			else
-				waitpid(child_pid, &status, 0);
-		}
-		else
-		{
-			perror("Command not found");
-		}
+		process_command(command, head, env);
 		free(command);
-		free(args);
 	}
-
-	temp = head;
-	while (temp != NULL)
-	{
-		next = temp->next;
-		free(temp->str);
-		free(temp);
-		temp = next;
-	}
-
+	free_list(head);
 	return (0);
 }
