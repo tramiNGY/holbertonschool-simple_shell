@@ -164,6 +164,9 @@ int main(int argc, char **argv, char **env)
 		command = readline();
 		if (command == NULL)
 			break;
+		if (command[0] == 'e' && command[1] == 'x'
+		&& command[2] == 'i' && command[3] == 't')
+			break;
 		if (strlen(command) == 0)
 			continue;
 		process_command(command, head, env);
