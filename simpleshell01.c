@@ -57,7 +57,7 @@ char *get_full_path(char *command, list_t *head)
 	struct stat buffer;
 	list_t *temp = head;
 
-	if (command[0] == '/')
+	if (command[0] == '/' || command[0] == '.')
 	{
 		if (stat(command, &buffer) == 0)
 			return (command);
