@@ -26,19 +26,20 @@ char *readline(void)
 /**
  * _getenv - replica of getenv function which get an environment variable
  * @name: name of the environment variable to get
+ * @env: environment variable
  * Return: pointer to the environment variable
  */
-char *_getenv(const char *name)
+char *_getenv(const char *name, char **env)
 {
 	int i, j;
 	int status;
 
-	for (i = 0; environ[i] != NULL; i++)
+	for (i = 0; env[i] != NULL; i++)
 	{
 		status = 1;
-		for (j = 0; environ[i][j] != '='; j++)
+		for (j = 0; env[i][j] != '='; j++)
 		{
-			if (name[j] != environ[i][j])
+			if (name[j] != env[i][j])
 			{
 				status = 0;
 				break;
@@ -46,7 +47,7 @@ char *_getenv(const char *name)
 		}
 		if (status)
 		{
-			return (&environ[i][j + 1]);
+			return (&env[i][j + 1]);
 		}
 	}
 	return (NULL);
@@ -55,12 +56,13 @@ char *_getenv(const char *name)
 /**
  * get_full_path - get absolute path of command
  * @command: command alone without full path
+ * @env: environment variable
  * Return: returns absolute path to command
 */
 
-char *get_full_path(char *command)
+char *get_full_path(char *command, char **env)
 {
-	char *path = _getenv("PATH");
+	char *path = _getenv("PATH", env);
 	char *dir = strtok(path, ":");
 	char *full_path = NULL;
 	struct stat buffer;
@@ -93,9 +95,10 @@ char *get_full_path(char *command)
  * main - execute command or print error message
  * @argc: number of arguments
  * @argv: list of arguments
+ * @env: environment variable
  * Return: 0 if success
  */
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **env)
 {
 	int status, i;
 	char *command, *token, *args[64];
@@ -120,7 +123,7 @@ int main(int argc, char **argv)
 		}
 		args[i] = NULL;
 		if (args[0][0] != '/')
-			args[0] = get_full_path(args[0]);
+			args[0] = get_full_path(args[0], env);
 		child_pid = fork();
 		if (child_pid == 0)
 		{
