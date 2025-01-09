@@ -198,7 +198,6 @@ int main(int argc, char **argv, char **env)
 				perror("fork");
 			else
 				waitpid(child_pid, &status, 0);
-			free(exe_path);
 		}
 		else
 		{
