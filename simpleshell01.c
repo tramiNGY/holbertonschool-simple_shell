@@ -77,7 +77,6 @@ char *get_full_path(char *command, list_t *head)
 		{
 			return (fullpath);
 		}
-
 		free(fullpath);
 		temp = temp->next;
 	}

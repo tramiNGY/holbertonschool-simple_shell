@@ -30,7 +30,6 @@ void process_command(char *command, list_t *head, char **env)
 			if (execve(exe_path, args, env) == -1)
 			{
 				perror("./shell");
-				free(command);
 				free(args);
 				exit(1);
 			}
@@ -48,6 +47,5 @@ void process_command(char *command, list_t *head, char **env)
 	{
 		perror("Command not found");
 	}
-
 	free(args);
 }
