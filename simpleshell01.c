@@ -190,6 +190,7 @@ int main(int argc, char **argv, char **env)
 					perror("./shell");
 					free(command);
 					free(args);
+					free(exe_path);
 					exit(1);
 				}
 			}
@@ -197,6 +198,7 @@ int main(int argc, char **argv, char **env)
 				perror("fork");
 			else
 				waitpid(child_pid, &status, 0);
+			free(exe_path);
 		}
 		else
 		{
