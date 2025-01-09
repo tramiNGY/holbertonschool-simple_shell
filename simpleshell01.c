@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include "shell.h"
 
 /**
  * readline - read a line from stdin
@@ -23,7 +24,7 @@ char *readline(void)
 	return (buffer);
 }
 /**
- * _getenv: replica of getenv function which get an environment variable
+ * _getenv - replica of getenv function which get an environment variable
  * @name: name of the environment variable to get
  * Return: pointer to the environment variable
  */
@@ -31,7 +32,7 @@ char *_getenv(const char *name)
 {
 	int i, j;
 	int status;
-	extern char **environ;
+
 	for (i = 0; environ[i] != NULL; i++)
 	{
 		status = 1;
@@ -50,6 +51,13 @@ char *_getenv(const char *name)
 	}
 	return (NULL);
 }
+
+/**
+ * get_full_path - get absolute path of command
+ * @command: command alone without full path
+ * Return: returns absolute path to command
+*/
+
 char *get_full_path(char *command)
 {
 	char *path = _getenv("PATH");
@@ -68,7 +76,7 @@ char *get_full_path(char *command)
 		if (full_path == NULL)
 		{
 			perror("malloc");
-			return NULL;
+			return (NULL);
 		}
 		sprintf(full_path, "%s/%s", dir, command);
 		if (stat(full_path, &buffer) == 0)
@@ -92,9 +100,7 @@ int main(int argc, char **argv)
 	int status, i;
 	char *command, *token, *args[64];
 	pid_t child_pid;
-
-	(void) argc;
-	(void) argv;
+	(void) argc, (void) argv;
 	while (1)
 	{
 		if (isatty(STDIN_FILENO))
@@ -114,7 +120,7 @@ int main(int argc, char **argv)
 		}
 		args[i] = NULL;
 		if (args[0][0] != '/')
-			args[0]= get_full_path(args[0]);
+			args[0] = get_full_path(args[0]);
 		child_pid = fork();
 		if (child_pid == 0)
 		{
@@ -125,12 +131,10 @@ int main(int argc, char **argv)
 				exit(1);
 			}
 		}
-
 		else if (child_pid < 0)
 			perror("fork");
 		else
 			waitpid(child_pid, &status, 0);
 		free(command);
-	}
-	return (0);
+	} return (0);
 }
