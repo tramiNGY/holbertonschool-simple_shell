@@ -30,6 +30,9 @@ The shell.h header file defines the structure and function prototypes necessary 
 - Your shell should not have any memory leaks
 - All your header files should be include guarded
 
+## Flowchart
+![printf flowchart image (1)](https://cdn.discordapp.com/attachments/1308098368370638849/1327074372334387273/Flowchart.jpg?ex=6781bdd2&is=67806c52&hm=49456d3af46f65d8bf890de1a11c7555eabb9d95351ebc86513a4b82004fcd99&)
+
 ## List of allowed functions and system calls
 all functions from string.h
 
